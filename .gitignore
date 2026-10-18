@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.DS_Store
+# Never commit data files to this repository
+data/
+*.csv
+*.parquet

@@ -1,0 +1,11 @@
+numpy>=1.26
+pandas>=2.0
+scipy>=1.11
+scikit-learn>=1.4
+matplotlib>=3.8
+torch>=2.2
+lifelines>=0.28
+shap>=0.45
+sentence-transformers>=3.0
+mcp>=2.0
+jupyter
