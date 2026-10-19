@@ -1,0 +1,36 @@
+# Fifteen SYNTHETIC notes with the identifiers a careful reviewer marked, by type. Every name, number, address and
+# place is invented (phone numbers start 00000, emails use example.org, postcodes are 9s). Notes 1-3 and 4-5 belong
+# to the same two patients, for the consistent-surrogate step.
+DEID_NOTES = [
+    ("A", "Mrs Asha Verma (MRN 00482913), DOB 04/02/1958, seen on 12/03/2026 at Lakeside Clinic. Accompanied by her son Ravi.",
+     {"NAME": ["Asha Verma", "Ravi"], "ID": ["00482913"], "DATE": ["04/02/1958", "12/03/2026"], "FACILITY": ["Lakeside Clinic"]}),
+    ("A", "Asha Verma reviewed on 09/04/2026. Her son Ravi says her feet are sore. Phone 00000 43210.",
+     {"NAME": ["Asha Verma", "Ravi"], "DATE": ["09/04/2026"], "PHONE": ["00000 43210"]}),
+    ("A", "Mrs Verma lives at 14 Hill Road, PIN 999999. Email asha.verma@example.org. Seen by Dr Lee.",
+     {"NAME": ["Verma", "Lee"], "ADDRESS": ["14 Hill Road"], "POSTCODE": ["999999"], "EMAIL": ["asha.verma@example.org"]}),
+    ("B", "Mr John Mathew, MRN 00918273, admitted to Riverside Hospital on 02/05/2026 with a foot infection.",
+     {"NAME": ["John Mathew"], "ID": ["00918273"], "FACILITY": ["Riverside Hospital"], "DATE": ["02/05/2026"]}),
+    ("B", "John Mathew discharged 09/05/2026. His wife Mary will help with dressings. Call 00000 55512.",
+     {"NAME": ["John Mathew", "Mary"], "DATE": ["09/05/2026"], "PHONE": ["00000 55512"]}),
+    ("C", "Ms Priya Rao, DOB 11/11/1990, gestational diabetes, reviewed at Greenfield Clinic.",
+     {"NAME": ["Priya Rao"], "DATE": ["11/11/1990"], "FACILITY": ["Greenfield Clinic"]}),
+    ("D", "Dr Okafor discussed results with Mr Sanjay Gupta by phone on 15/06/2026.",
+     {"NAME": ["Okafor", "Sanjay Gupta"], "DATE": ["15/06/2026"]}),
+    ("E", "Patient Leela Nair (MRN 00733419) lives at 7 Lake View Street, PIN 999998.",
+     {"NAME": ["Leela Nair"], "ID": ["00733419"], "ADDRESS": ["7 Lake View Street"], "POSTCODE": ["999998"]}),
+    ("F", "Mrs Fatima Khan attended with her daughter Sara. Email f.khan@example.org.",
+     {"NAME": ["Fatima Khan", "Sara"], "EMAIL": ["f.khan@example.org"]}),
+    ("G", "Mr Peter Brown, retired bus driver, seen 21/07/2026 at Northgate Hospital.",
+     {"NAME": ["Peter Brown"], "DATE": ["21/07/2026"], "FACILITY": ["Northgate Hospital"]}),
+    ("H", "Kiran Reddy, 34, phone 00000 77788, works at the city library.",
+     {"NAME": ["Kiran Reddy"], "PHONE": ["00000 77788"]}),
+    ("I", "Mrs Grace Thomas, MRN 00651200. Her husband George manages her insulin.",
+     {"NAME": ["Grace Thomas", "George"], "ID": ["00651200"]}),
+    ("J", "Seen at Hilltop Clinic on 03/08/2026. Mr Arun Das lives at 22 Station Road.",
+     {"FACILITY": ["Hilltop Clinic"], "DATE": ["03/08/2026"], "NAME": ["Arun Das"], "ADDRESS": ["22 Station Road"]}),
+    ("K", "Ms Neha Joshi, email neha.j@example.org, DOB 30/01/1985, type 1 diabetes.",
+     {"NAME": ["Neha Joshi"], "EMAIL": ["neha.j@example.org"], "DATE": ["30/01/1985"]}),
+    ("L", "Mr Ali Hassan reviewed by Dr Mehta. His son Omar drove him to Central Hospital.",
+     {"NAME": ["Ali Hassan", "Mehta", "Omar"], "FACILITY": ["Central Hospital"]}),
+]
+print(f"{len(DEID_NOTES)} synthetic notes, {sum(len(v) for _, _, g in DEID_NOTES for v in g.values())} marked identifiers")
