@@ -2,7 +2,7 @@
 
 Runnable Python notebooks for the free [Medical AI course](https://ramkumarmd.com/medical-ai) by Dr. Ram Kumar G: ten tracks covering healthcare data, machine learning, deep learning and imaging, clinical NLP, large language models, retrieval-augmented generation, AI agents, evaluation and safety, regulation, and applied diabetes case studies.
 
-Each notebook reproduces the lesson's worked example, then sets out the exercise steps for you to complete. Worked solutions are being added track by track.
+Each notebook reproduces the lesson's worked example, then sets out the exercise steps for you to complete. Every exercise has a worked solution notebook next to it (`-solution.ipynb`); try the exercise first.
 
 ## Running the notebooks
 
@@ -130,11 +130,11 @@ Some notebooks download a small open embedding model (all-MiniLM-L6-v2) the firs
 
 | Lesson | Notebook | Run | Solution |
 |---|---|---|---|
-| [Forecasting glucose from CGM data](https://ramkumarmd.com/medical-ai/applied-diabetes/cgm-glucose-forecasting) | [notebook](notebooks/applied-diabetes/01-cgm-glucose-forecasting.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/01-cgm-glucose-forecasting.ipynb) | coming |
-| [Diabetic retinopathy screening](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetic-retinopathy-screening) | [notebook](notebooks/applied-diabetes/02-diabetic-retinopathy-screening.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/02-diabetic-retinopathy-screening.ipynb) | coming |
-| [Diabetic kidney disease risk modelling](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetic-kidney-disease-risk) | [notebook](notebooks/applied-diabetes/03-diabetic-kidney-disease-risk.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/03-diabetic-kidney-disease-risk.ipynb) | coming |
-| [Diabetic foot-ulcer image classification](https://ramkumarmd.com/medical-ai/applied-diabetes/foot-ulcer-image-classification) | [notebook](notebooks/applied-diabetes/04-foot-ulcer-image-classification.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/04-foot-ulcer-image-classification.ipynb) | coming |
-| [A RAG assistant over a diabetes guideline](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetes-guideline-rag-assistant) | [notebook](notebooks/applied-diabetes/05-diabetes-guideline-rag-assistant.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/05-diabetes-guideline-rag-assistant.ipynb) | coming |
+| [Forecasting glucose from CGM data](https://ramkumarmd.com/medical-ai/applied-diabetes/cgm-glucose-forecasting) | [notebook](notebooks/applied-diabetes/01-cgm-glucose-forecasting.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/01-cgm-glucose-forecasting.ipynb) | [solution](notebooks/applied-diabetes/01-cgm-glucose-forecasting-solution.ipynb) |
+| [Diabetic retinopathy screening](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetic-retinopathy-screening) | [notebook](notebooks/applied-diabetes/02-diabetic-retinopathy-screening.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/02-diabetic-retinopathy-screening.ipynb) | [solution](notebooks/applied-diabetes/02-diabetic-retinopathy-screening-solution.ipynb) |
+| [Diabetic kidney disease risk modelling](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetic-kidney-disease-risk) | [notebook](notebooks/applied-diabetes/03-diabetic-kidney-disease-risk.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/03-diabetic-kidney-disease-risk.ipynb) | [solution](notebooks/applied-diabetes/03-diabetic-kidney-disease-risk-solution.ipynb) |
+| [Diabetic foot-ulcer image classification](https://ramkumarmd.com/medical-ai/applied-diabetes/foot-ulcer-image-classification) | [notebook](notebooks/applied-diabetes/04-foot-ulcer-image-classification.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/04-foot-ulcer-image-classification.ipynb) | [solution](notebooks/applied-diabetes/04-foot-ulcer-image-classification-solution.ipynb) |
+| [A RAG assistant over a diabetes guideline](https://ramkumarmd.com/medical-ai/applied-diabetes/diabetes-guideline-rag-assistant) | [notebook](notebooks/applied-diabetes/05-diabetes-guideline-rag-assistant.ipynb) | [Open in Colab](https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/notebooks/applied-diabetes/05-diabetes-guideline-rag-assistant.ipynb) | [solution](notebooks/applied-diabetes/05-diabetes-guideline-rag-assistant-solution.ipynb) |
 
 ## Licences
 
