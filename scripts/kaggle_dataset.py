@@ -24,6 +24,7 @@ import pandas as pd  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from generate_synthetic_cohort import ADMISSION_MODEL, generate  # noqa: E402
+import kaggle_common as K  # noqa: E402
 
 OUT = ROOT / "kaggle-build" / "dataset"
 STARTER = ROOT / "kaggle-build" / "starter"
@@ -259,64 +260,64 @@ def build_tables(course: dict) -> dict[str, dict]:
 
 def make_charts(cohort: pd.DataFrame):
     ASSETS.mkdir(parents=True, exist_ok=True)
-    plt.rcParams.update({"font.family": "DejaVu Sans", "axes.spines.top": False, "axes.spines.right": False, "axes.edgecolor": "#9fb3b6", "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK})
+    K.style()
+    fig, ax = plt.subplots(2, 2, figsize=(12, 8), dpi=110)
+    fig.subplots_adjust(hspace=0.6, wspace=0.28, top=0.81, bottom=0.08)
 
-    # Overview: 4 panels
-    fig, ax = plt.subplots(2, 2, figsize=(12, 7.5), dpi=110)
-    bins = np.arange(4.99, 13.2, 0.3)  # edges between 0.1-rounded values
-    for dt, col in (("type 2", TEAL), ("type 1", "#555f94")):
-        vals = cohort.loc[cohort.diabetes_type == dt, "hba1c_percent"].dropna()
-        ax[0, 0].hist(vals, bins=bins, color=col, alpha=0.75 if dt == "type 2" else 0.9, density=True, histtype="stepfilled" if dt == "type 2" else "step", lw=2, label=f"{dt} (n = {len(vals):,})")
-    ax[0, 0].axvline(7, color=BLOOD, lw=1.2, ls="--")
-    ax[0, 0].annotate("7% target", xy=(7, 0.95), xycoords=("data", "axes fraction"), xytext=(-6, 0), textcoords="offset points", ha="right", color=BLOOD, fontsize=9)
-    ax[0, 0].set(title="HbA1c by diabetes type", xlabel="HbA1c (%)", ylabel="Share of patients (density)")
-    ax[0, 0].legend(frameon=False)
+    bins = np.arange(4.99, 13.2, 0.3)
+    t2 = cohort.loc[cohort.diabetes_type == "type 2", "hba1c_percent"].dropna()
+    t1 = cohort.loc[cohort.diabetes_type == "type 1", "hba1c_percent"].dropna()
+    ax[0, 0].hist(t2, bins=bins, density=True, color=K.BLUE, rwidth=0.88, label=f"Type 2 (n = {len(t2):,})")
+    ax[0, 0].hist(t1, bins=bins, density=True, histtype="step", color=K.ORANGE, lw=2, label=f"Type 1 (n = {len(t1):,})")
+    ax[0, 0].axvline(7, color=K.INK_2, lw=1)
+    ax[0, 0].annotate("7% target", xy=(7, 0.97), xycoords=("data", "axes fraction"), xytext=(-4, 0), textcoords="offset points", fontsize=8.5, color=K.INK_2, va="top", ha="right")
+    ax[0, 0].legend(loc="upper right")
+    ax[0, 0].set(xlabel="HbA1c (%)", ylabel="Share of patients")
+    K.titled(ax[0, 0], "HbA1c by diabetes type", "Type 1 sits higher on average")
 
     n_comp = cohort[["retinopathy", "neuropathy", "foot_ulcer_history"]].sum(axis=1).clip(upper=2)
     rate = cohort.groupby(n_comp)["admission_12m"].mean() * 100
-    ax[0, 1].bar(["0", "1", "2 or more"], rate.values, color=[CYAN, TEAL, NAVY])
+    colors = [K.BLUE, K.BLUE, K.ORANGE]
+    ax[0, 1].bar(["None", "One", "Two or more"], rate.values, width=0.5, color=colors)
     for i, v in enumerate(rate.values):
-        ax[0, 1].text(i, v + 0.6, f"{v:.0f}%", ha="center", color=INK, fontsize=10)
-    ax[0, 1].set(title="12-month admission rate by number of complications", xlabel="Complications (retinopathy, neuropathy, foot ulcer)", ylabel="Admitted (%)")
+        ax[0, 1].text(i, v + 0.8, f"{v:.0f}%", ha="center", fontsize=9.5, color=K.INK)
+    ax[0, 1].set(ylabel="Admitted within 12 months (%)", xlabel="Complications (retinopathy, neuropathy, foot ulcer)")
+    K.titled(ax[0, 1], "Admission rate by number of complications", "Risk climbs with each complication")
 
     s = cohort.sample(1500, random_state=1)
     alb = s.uacr_mg_g >= 30
-    ax[1, 0].scatter(s.age[~alb], s.egfr[~alb], s=8, color=CYAN, alpha=0.6, label="UACR < 30 mg/g")
-    ax[1, 0].scatter(s.age[alb], s.egfr[alb], s=8, color=BLOOD, alpha=0.6, label="UACR 30+ mg/g")
-    ax[1, 0].axhline(60, color=INK, lw=0.8, ls=":")
-    ax[1, 0].set(title="Kidney function falls with age", xlabel="Age (years)", ylabel="eGFR (mL/min/1.73m²)")
-    ax[1, 0].legend(frameon=False, fontsize=9)
+    ax[1, 0].scatter(s.age[~alb], s.egfr[~alb], s=9, color=K.MUTED, alpha=0.45, lw=0, label="UACR below 30 mg/g")
+    ax[1, 0].scatter(s.age[alb], s.egfr[alb], s=9, color=K.ORANGE, alpha=0.75, lw=0, label="UACR 30 mg/g or more")
+    ax[1, 0].axhline(60, color=K.INK_2, lw=1)
+    ax[1, 0].text(17, 56, "eGFR 60", fontsize=8.5, color=K.INK_2, ha="left", va="top")
+    ax[1, 0].legend(loc="upper right", markerscale=1.8)
+    ax[1, 0].set(xlabel="Age (years)", ylabel="eGFR (mL/min/1.73m²)")
+    K.titled(ax[1, 0], "Kidney function by age", "Albuminuria clusters where eGFR is lower")
 
     miss = cohort.isna().mean().mul(100).loc[lambda x: x > 0].sort_values()
-    ax[1, 1].barh(miss.index, miss.values, color=TEAL)
+    ax[1, 1].barh(miss.index, miss.values, height=0.5, color=K.BLUE)
+    ax[1, 1].grid(axis="y", visible=False)
+    ax[1, 1].grid(axis="x", visible=True)
     for i, v in enumerate(miss.values):
-        ax[1, 1].text(v + 0.1, i, f"{v:.1f}%", va="center", fontsize=9, color=INK)
-    ax[1, 1].set(title="Deliberately missing values", xlabel="Missing (%)")
-    fig.suptitle("Synthetic diabetes clinic cohort (n = 5,000)", color=NAVY, fontsize=15, fontweight="bold")
-    fig.tight_layout()
-    fig.savefig(ASSETS / "cohort-overview.png", facecolor="white")
+        ax[1, 1].text(v + 0.1, i, f"{v:.1f}%", va="center", fontsize=9, color=K.INK)
+    ax[1, 1].set(xlabel="Missing (%)")
+    K.titled(ax[1, 1], "Deliberately missing values", "UACR is missing at random; the rest completely at random")
+
+    fig.text(0.01, 0.965, "Synthetic diabetes clinic cohort, 5,000 patients", fontsize=14, color=K.INK, ha="left")
+    fig.text(0.01, 0.93, "Synthetic data generated for teaching; no real patients", fontsize=9.5, color=K.INK_2, ha="left")
+    K.source_note(fig, "Source: diabetes_clinic_cohort.csv, Synthetic Diabetes Clinic Data for Medical AI (Kaggle)")
+    fig.savefig(ASSETS / "cohort-overview.png")
     plt.close(fig)
 
-    # Cover image: exactly 560 x 280 px; the thumbnail is the centre 280 x 280.
-    fig = plt.figure(figsize=(5.6, 2.8), dpi=100)
-    fig.patch.set_facecolor(NAVY)
-    axc = fig.add_axes([0, 0, 1, 1])
-    axc.set_xlim(0, 560)
-    axc.set_ylim(0, 280)
-    axc.axis("off")
     vals = cohort.hba1c_percent.dropna()
-    counts, edges = np.histogram(vals, bins=np.arange(4.99, 12.5, 0.2))
-    heights = counts / counts.max() * 120
-    width = 560 / len(counts)
-    for i, h in enumerate(heights):
-        axc.add_patch(plt.Rectangle((i * width + 1, 0), width - 2, h, color=TEAL, alpha=0.55, lw=0))
-    axc.plot([0, 560], [0.5, 0.5], color=CYAN, lw=2)
-    axc.text(280, 205, "Synthetic Diabetes", color=LIGHT, fontsize=16.5, fontweight="bold", ha="center", va="center")
-    axc.text(280, 180, "Clinic Data", color=LIGHT, fontsize=16.5, fontweight="bold", ha="center", va="center")
-    axc.text(280, 152, "for Medical AI", color=CYAN, fontsize=12, ha="center", va="center")
-    axc.text(280, 250, "5,000 SYNTHETIC PATIENTS  |  NOTES  |  LLM PAIRS", color="#b8ced0", fontsize=7.5, ha="center", va="center")
-    fig.savefig(OUT / "dataset-cover-image.png", facecolor=NAVY, dpi=100)
-    plt.close(fig)
+    counts, _ = np.histogram(vals, bins=np.arange(4.99, 12.5, 0.2))
+
+    def draw(axc):
+        axc.bar(range(len(counts)), counts, width=0.8, color=K.BLUE_LIGHT)
+        axc.set_xlim(-1, len(counts))
+        axc.set_ylim(0, counts.max() * 1.05)
+
+    K.cover(OUT / "dataset-cover-image.png", ("Synthetic Diabetes", "Clinic Data"), "for Medical AI", "5,000 SYNTHETIC PATIENTS  |  NOTES  |  LLM PAIRS", draw)
 
 
 def write_assumptions():
@@ -467,13 +468,13 @@ cohort.describe().T[['count', 'mean', 'min', '50%', 'max']].round(1)
     mdc("## Charts")
     code(f"""
 fig, ax = plt.subplots(1, 3, figsize=(16, 4))
-for dt, col in (('type 2', '{TEAL}'), ('type 1', '#555f94')):
+for dt, col in (('type 2', '{K.BLUE}'), ('type 1', '{K.ORANGE}')):
     ax[0].hist(cohort.loc[cohort.diabetes_type == dt, 'hba1c_percent'].dropna(), bins=36, alpha=0.8, color=col, label=dt)
-ax[0].axvline(7, color='{BLOOD}', ls='--'); ax[0].set(title='HbA1c by diabetes type', xlabel='HbA1c (%)'); ax[0].legend()
+ax[0].axvline(7, color='{K.INK_2}', lw=1); ax[0].set(title='HbA1c by diabetes type', xlabel='HbA1c (%)'); ax[0].legend()
 n_comp = cohort[['retinopathy', 'neuropathy', 'foot_ulcer_history']].sum(axis=1).clip(upper=2)
-(cohort.groupby(n_comp)['admission_12m'].mean() * 100).plot.bar(ax=ax[1], color=['{CYAN}', '{TEAL}', '{NAVY}'], rot=0)
+(cohort.groupby(n_comp)['admission_12m'].mean() * 100).plot.bar(ax=ax[1], color=['{K.BLUE}', '{K.BLUE}', '{K.ORANGE}'], rot=0)
 ax[1].set(title='Admission rate by number of complications', xlabel='Complications', ylabel='%')
-(cohort.isna().mean() * 100).loc[lambda s: s > 0].sort_values().plot.barh(ax=ax[2], color='{TEAL}')
+(cohort.isna().mean() * 100).loc[lambda s: s > 0].sort_values().plot.barh(ax=ax[2], color='{K.BLUE}')
 ax[2].set(title='Missing values (%)')
 plt.tight_layout(); plt.show()
 """)
