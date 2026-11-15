@@ -562,7 +562,7 @@ def main(user: str):
         "subtitle": SUBTITLE,
         "id": f"{user}/{SLUG}",
         "licenses": [{"name": "CC-BY-4.0"}],
-        "keywords": ["healthcare", "medicine", "health", "nlp", "text", "education", "classification", "tabular"],
+        "keywords": ["healthcare", "medicine", "nlp", "classification", "education"],
         "description": description(tables, course),
         "resources": resources,
         "userSpecifiedSources": (
@@ -575,6 +575,12 @@ def main(user: str):
         "image": "dataset-cover-image.png",
     }
     (OUT / "dataset-metadata.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
+    # `kaggle datasets metadata --update` wants the licence's display name, so it gets its own folder.
+    upd = OUT.parent / "dataset-metadata-update"
+    shutil.rmtree(upd, ignore_errors=True)
+    upd.mkdir()
+    shutil.copy(OUT / "dataset-cover-image.png", upd / "dataset-cover-image.png")
+    (upd / "dataset-metadata.json").write_text(json.dumps({**meta, "licenses": [{"name": "Attribution 4.0 International (CC BY 4.0)"}]}, indent=2, ensure_ascii=False))
     write_starter(user, course)
     print(f"Built {len(tables)} tables, {len(dictionary)} dictionary rows, cover, charts and starter notebook")
 
