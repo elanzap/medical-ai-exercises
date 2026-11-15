@@ -26,7 +26,7 @@ BUILD = ROOT / "kaggle-build"
 REPO = "https://github.com/elanzap/medical-ai-exercises"
 COLAB = "https://colab.research.google.com/github/elanzap/medical-ai-exercises/blob/main/"
 DATASET_SLUG = "medical-ai-course-synthetic-exercise-data"
-DATASET_TITLE = "Medical AI course: synthetic exercise data"
+DATASET_TITLE = "Synthetic Diabetes Clinic Data for Medical AI"
 
 DISCLAIMER = (
     "**Educational content only.** This material teaches methods; it is not clinical advice. Code, models and "
@@ -96,58 +96,12 @@ def load_course() -> dict:
 
 
 def build_dataset(user: str, site: str, author: str) -> set[str]:
-    """Exports each exercise-data script's variables to JSON (and CSV for simple tables). Returns lesson keys with data."""
-    out = BUILD / "dataset"
-    shutil.rmtree(out, ignore_errors=True)
-    out.mkdir(parents=True)
-    keys = set()
-    for script in sorted((ROOT / "exercise-data").glob("*/*.py")):
-        track, stem = script.parent.name, script.stem
-        keys.add(f"{track}/{stem}")
-        scope: dict = {}
-        exec(compile(script.read_text(), str(script), "exec"), scope)  # our own synthetic data literals, no imports
-        data = {k: v for k, v in scope.items() if not k.startswith("__")}
-        target = out / track
-        target.mkdir(exist_ok=True)
-        shutil.copy(script, target / script.name)
-        (target / f"{stem}.json").write_text(json.dumps(data, indent=2, ensure_ascii=False, default=lambda o: sorted(o) if isinstance(o, (set, frozenset)) else str(o)))
-        for name, value in data.items():
-            rows = value if isinstance(value, list) else None
-            if rows and all(isinstance(r, dict) for r in rows) and all(not isinstance(v, (dict, list)) for r in rows for v in r.values()):
-                fields = list(dict.fromkeys(k for r in rows for k in r))
-                with open(target / f"{stem}-{name}.csv", "w", newline="") as f:
-                    w = csv.DictWriter(f, fieldnames=fields)
-                    w.writeheader()
-                    w.writerows(rows)
-            elif rows and all(isinstance(r, (list, tuple)) for r in rows) and len({len(r) for r in rows}) == 1:
-                with open(target / f"{stem}-{name}.csv", "w", newline="") as f:
-                    csv.writer(f).writerows(rows)
-    description = f"""# {DATASET_TITLE}
-
-Small, fully **synthetic** datasets used in the exercises of the free [Medical AI course]({site}/medical-ai) by [{author}]({site}/about): made-up clinic notes, coded notes, de-identification examples, prompting and summarisation pairs, and fictional products and scenarios for the regulation exercises. **No real patients.**
-
-Each folder matches a course track and each file a lesson, for example `clinical-nlp/01-working-with-clinical-notes.json` belongs to the lesson [Working with clinical notes]({site}/medical-ai/clinical-nlp). Files are JSON (one key per variable), CSV where the data is a simple table, and the original Python source.
-
-## Links
-
-- Course: {site}/medical-ai
-- Start here: {site}/medical-ai/start-here
-- Author: {site}/about
-- Exercise notebooks (GitHub): {REPO}
-
-## Licence and use
-
-Data and text: CC BY 4.0. Code: MIT. {DISCLAIMER}
-"""
-    (out / "dataset-metadata.json").write_text(json.dumps({
-        "title": DATASET_TITLE,
-        "subtitle": "Synthetic clinic notes and scenarios for a free healthcare AI course",
-        "id": f"{user}/{DATASET_SLUG}",
-        "licenses": [{"name": "CC-BY-4.0"}],
-        "description": description,
-        "keywords": ["healthcare", "medicine", "nlp", "text"],
-    }, indent=2))
-    return keys
+    """Builds the dataset, its charts and starter notebook with scripts/kaggle_dataset.py (needs numpy, pandas and
+    matplotlib, run through uv). Returns the lesson keys whose exercises use the course data."""
+    uv = shutil.which("uv") or str(Path.home() / ".local/bin/uv")
+    subprocess.run([uv, "run", "-q", "--python", "3.12", "--with", "numpy", "--with", "pandas", "--with", "matplotlib",
+                    str(ROOT / "scripts" / "kaggle_dataset.py"), "--user", user], check=True)
+    return {f"{p.parent.name}/{p.stem}" for p in (ROOT / "exercise-data").glob("*/*.py")}
 
 
 def build_kernel(user, slug, title, cells, data_source, keywords):
@@ -289,7 +243,7 @@ def run(cmd: list[str]) -> tuple[int, str]:
 
 
 def publish(user: str, built: list[dict], only: str | None):
-    kaggle = shutil.which("kaggle") or str(Path.home() / "Library/Python/3.9/bin/kaggle")
+    kaggle = shutil.which("kaggle") or str(Path.home() / ".local/bin/kaggle")  # Kaggle CLI 2.x (uv tool install kaggle)
     log = BUILD / "published.csv"
     done = {}
     if log.exists():
@@ -297,7 +251,7 @@ def publish(user: str, built: list[dict], only: str | None):
     if not only:
         code, out = run([kaggle, "datasets", "status", f"{user}/{DATASET_SLUG}"])
         if code != 0 or "ready" not in out.lower():
-            code, out = run([kaggle, "datasets", "create", "-p", str(BUILD / "dataset"), "--dir-mode", "zip"])
+            code, out = run([kaggle, "datasets", "create", "-p", str(BUILD / "dataset"), "--dir-mode", "zip", "--public"])
             print("dataset:", out.splitlines()[-1] if out else code)
             time.sleep(60)  # let the dataset finish processing before kernels attach it
     for item in built:
@@ -305,15 +259,21 @@ def publish(user: str, built: list[dict], only: str | None):
             continue
         if not only and done.get(item["slug"], {}).get("result") == "pushed":
             continue
-        code, out = run([kaggle, "kernels", "push", "-p", str(BUILD / "kernels" / item["slug"])])
-        ok = code == 0 and "error" not in out.lower()
+        for attempt in range(60):  # Kaggle's push limit can last hours; keep retrying for up to a day
+            code, out = run([kaggle, "kernels", "push", "-p", str(BUILD / "kernels" / item["slug"])])
+            if "rate limit" not in out.lower():
+                break
+            wait = min(300 * (attempt + 1), 1800)  # 5, 10, 15 ... then every 30 min
+            print(f"rate limited on {item['slug']}; waiting {wait // 60} min", flush=True)
+            time.sleep(wait)
+        ok = code == 0 and "error" not in out.lower() and "rate limit" not in out.lower()
         done[item["slug"]] = {**item, "url": f"https://www.kaggle.com/code/{user}/{item['slug']}", "result": "pushed" if ok else "failed", "message": out.splitlines()[-1] if out else ""}
         print(("OK  " if ok else "FAIL"), item["slug"], "-", done[item["slug"]]["message"])
         with open(log, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=["slug", "title", "kind", "lesson", "url", "result", "message"])
             w.writeheader()
             w.writerows(done.values())
-        time.sleep(12)
+        time.sleep(45)  # Kaggle rate-limits rapid pushes
 
 
 if __name__ == "__main__":
