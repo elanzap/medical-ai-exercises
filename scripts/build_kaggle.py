@@ -272,6 +272,8 @@ def publish(user: str, built: list[dict], only: str | None):
             code, out = run([kaggle, "datasets", "create", "-p", str(BUILD / "dataset"), "--dir-mode", "zip", "--public"])
             print("dataset:", out.splitlines()[-1] if out else code)
             time.sleep(60)  # let the dataset finish processing before kernels attach it
+    # Updates to existing notebooks first: Kaggle limits creating new notebooks far more than updating them.
+    built = sorted(built, key=lambda i: done.get(i["slug"], {}).get("result") != "stale")
     for item in built:
         if only and item["slug"] != only:
             continue
