@@ -33,7 +33,7 @@ DISCLAIMER = (
     "tools for real patient care. Synthetic records describe no real patients, clinicians or products. Mentions of "
     "medicines, models, companies or regulators are for identification, not endorsement."
 )
-LICENCE_DISPLAY = {"CC-BY-4.0": "Attribution 4.0 International (CC BY 4.0)", "CC0-1.0": "CC0: Public Domain"}
+LICENCE_DISPLAY = {"CC-BY-4.0": "Attribution 4.0 International (CC BY 4.0)"}  # CC0-1.0 is accepted as is
 
 
 def style():
