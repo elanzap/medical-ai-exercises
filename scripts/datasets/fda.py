@@ -173,7 +173,7 @@ A cleaned, analysis-ready snapshot of the **US Food and Drug Administration's pu
 - **Text analysis:** classify devices by task (triage, segmentation, detection, reconstruction) from their names.
 - **Join it:** product codes link to the FDA product classification database; submission numbers link to the FDA's 510(k), De Novo and PMA databases.
 
-A ready-to-run [starter notebook](https://www.kaggle.com/code/{user}/fda-ai-enabled-medical-devices-starter) reproduces the trend charts and searches for diabetes-related devices.
+A ready-to-run [starter notebook](https://www.kaggle.com/code/{user}/us-fda-ai-enabled-devices-starter) reproduces the trend charts and searches for diabetes-related devices.
 
 {K.links_block([lesson, ("Software as a Medical Device (SaMD)", f"{K.SITE}/medical-ai/regulation-ethics/software-as-a-medical-device")])}
 {K.related_datasets(user, SLUG)}
@@ -233,7 +233,7 @@ def starter(user, lesson):
 
 {K.DISCLAIMER}
 """))
-    K.write_starter(K.BUILD / "starters" / SLUG, user, "fda-ai-enabled-medical-devices-starter", "US FDA AI-Enabled Devices: Starter", SLUG, cells)
+    K.write_starter(K.BUILD / "starters" / SLUG, user, "us-fda-ai-enabled-devices-starter", "US FDA AI-Enabled Devices: Starter", SLUG, cells)
 
 
 def main(user, snapshot):
