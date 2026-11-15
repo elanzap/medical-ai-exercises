@@ -417,6 +417,7 @@ Each table belongs to a lesson with a full explanation, worked example, exercise
 - Notebooks on GitHub (MIT): {REPO}
 - About the author: {site}/about
 
+{K.related_datasets(course.get('kaggleUser', 'rakuelli'), SLUG)}
 ## Licence and citation
 
 Data and text: CC BY 4.0. Code: MIT. Please cite as: *Ram Kumar G. Synthetic Diabetes Clinic Data for Medical AI. Kaggle, 2026. {site}/medical-ai*
