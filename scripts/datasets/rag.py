@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 SLUG = "synthetic-clinical-rag-evaluation"
 TITLE = "Synthetic Clinical RAG Evaluation Set"
-SUBTITLE = "Diabetes clinic protocols, 4-way paraphrased questions and labelled answer claims"
+SUBTITLE = "Synthetic clinic protocols, paraphrased questions and labelled claims"
 OUT = K.BUILD / "datasets" / SLUG
 ASSETS = K.ROOT / "assets" / "kaggle" / SLUG
 NOTE = "Synthetic teaching document for evaluating retrieval systems. Not clinical guidance; do not use for patient care."
