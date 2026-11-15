@@ -21,6 +21,8 @@ import subprocess
 import time
 from pathlib import Path
 
+from kaggle_cohort_cells import LOADER as COHORT_LOADER, SECTIONS as COHORT_SECTIONS
+
 ROOT = Path(__file__).resolve().parent.parent
 BUILD = ROOT / "kaggle-build"
 REPO = "https://github.com/elanzap/medical-ai-exercises"
@@ -82,6 +84,10 @@ def short_title(title: str, suffix: str, limit: int = 50) -> str:
             words.pop()
         base = " ".join(words).rstrip(",:;")
     return base + suffix
+
+
+def code_cell(text: str) -> dict:
+    return {"cell_type": "code", "metadata": {}, "execution_count": None, "outputs": [], "source": text.strip().splitlines(keepends=True)}
 
 
 def md(text: str) -> dict:
@@ -167,13 +173,16 @@ def build(user: str) -> list[dict]:
                 other = "Solution" if kind == "Exercise" else "Exercise"
                 counterpart = f"https://www.kaggle.com/code/{user}/{slugs[other]}"
                 repo_path = path.relative_to(ROOT).as_posix()
+                dataset_url = f"https://www.kaggle.com/datasets/{user}/{DATASET_SLUG}"
+                uses_data = key in data_keys or lesson["slug"] in COHORT_SECTIONS
+                data_line = f"\n> - Data: the Kaggle dataset [{DATASET_TITLE}]({dataset_url})" if uses_data else ""
                 header = f"""
 > **{lesson['title']}**: {kind.lower()} notebook, lesson {track['order']}.{lesson['number']:02d} of the free **[Medical AI course]({site}/medical-ai)** by {author_line}.
 >
 > - **Read the full lesson** (explanation, worked example, FAQs and sources): [{lesson['title']}]({lesson['url']})
 > - Track: [{track['title']}]({track['url']}), and the [course start page]({site}/medical-ai/start-here)
 > - {"Try the exercise first; the worked solution is in the" if kind == "Exercise" else "This is the worked solution; try the"} [{other.lower()} notebook]({counterpart}) {"when you're done" if kind == "Exercise" else "first"}
-> - Also on [GitHub]({REPO}/blob/main/{repo_path}) and [Colab]({COLAB}{repo_path})
+> - Also on [GitHub]({REPO}/blob/main/{repo_path}) and [Colab]({COLAB}{repo_path}){data_line}
 >
 > {LICENCE}
 """
@@ -189,11 +198,20 @@ def build(user: str) -> list[dict]:
 {DISCLAIMER}
 """
                 cells = json.loads(path.read_text())["cells"]
+                extension = []
+                if lesson["slug"] in COHORT_SECTIONS:
+                    intro, code_src = COHORT_SECTIONS[lesson["slug"]]
+                    extension = [
+                        md(f"## Try it on a larger cohort\n\nAn extra section for Kaggle, beyond the lesson's exercise. {intro} "
+                           f"The data is `diabetes_clinic_cohort.csv` from the dataset [{DATASET_TITLE}]({dataset_url}): 5,000 synthetic patients, no real people."),
+                        code_cell(COHORT_LOADER),
+                        code_cell(code_src),
+                    ]
                 for c in cells:
                     if c["cell_type"] == "code":
                         c.setdefault("outputs", [])
                         c.setdefault("execution_count", None)
-                build_kernel(user, slugs[kind], titles[kind], [md(header)] + cells + [md(footer)], key in data_keys, keywords)
+                build_kernel(user, slugs[kind], titles[kind], [md(header)] + cells + extension + [md(footer)], uses_data, keywords)
                 built.append({"slug": slugs[kind], "title": titles[kind], "kind": kind.lower(), "lesson": lesson["url"]})
 
     for article in course["articles"]:
