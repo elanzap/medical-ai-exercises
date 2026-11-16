@@ -18,11 +18,11 @@ import shutil
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
 SLUG = "fda-ai-enabled-medical-devices"
@@ -125,13 +125,8 @@ def charts(df, by_year, by_panel, snapshot):
     fig.savefig(ASSETS / "overview.png")
     plt.close(fig)
 
-    tot = (rad + oth)
 
-    def draw(axc):
-        axc.bar(range(len(tot)), tot.values, width=0.7, color=K.BLUE_LIGHT)
-        axc.set_xlim(-0.7, len(tot) - 0.3)
-
-    K.cover(OUT / "dataset-cover-image.png", ("US FDA AI-Enabled", "Medical Devices"), "cleaned public list, 1995-2026", f"{len(df):,} DECISIONS  |  510(k)  |  DE NOVO  |  PMA", draw)
+    make_cover("fda")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def description(user, df, by_year, by_panel, snapshot, lesson):

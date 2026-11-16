@@ -21,6 +21,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 from generate_synthetic_cohort import generate as generate_cohort  # noqa: E402
 
@@ -248,11 +249,7 @@ def charts(counts, task_df, t):
     fig.savefig(ASSETS / "overview.png")
     plt.close(fig)
 
-    def draw(axc):
-        axc.bar(range(len(c)), sorted(c.values), width=0.6, color=K.BLUE_LIGHT)
-        axc.set_xlim(-0.7, len(c) - 0.3)
-
-    K.cover(OUT / "dataset-cover-image.png", ("Synthetic FHIR R4", "Bundles"), "for AI agents and tool calling", "500 SYNTHETIC PATIENTS  |  LOINC  |  SNOMED CT  |  RXNORM", draw)
+    make_cover("fhir")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def description(user, counts, task_df, t, lessons):

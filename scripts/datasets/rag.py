@@ -20,6 +20,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
 SLUG = "synthetic-clinical-rag-evaluation"
@@ -172,7 +173,6 @@ def charts(sections, questions, claims):
     best = cosine_similarity(vec.transform(questions.question), vec.transform(corpus)).argmax(axis=1)
     hit = sections.section_id.values[best] == questions.gold_section_id.values
     r1 = pd.Series(hit).groupby(questions.phrasing.values).mean().mul(100).reindex(PHRASINGS)
-    per = r1
     ax[0].bar(["Clinical", "Lay", "Abbreviation", "Misspelled"], r1.values, width=0.5, color=[K.BLUE, K.ORANGE, K.BLUE, K.BLUE])
     for i, v in enumerate(r1.values):
         ax[0].text(i, v + 1.5, f"{v:.0f}%", ha="center", fontsize=9.5)
@@ -193,12 +193,7 @@ def charts(sections, questions, claims):
     fig.savefig(ASSETS / "overview.png")
     plt.close(fig)
 
-    def draw(axc):
-        axc.bar(range(len(per)), per.values, width=0.55, color=K.BLUE_LIGHT)
-        axc.set_xlim(-0.7, len(per) - 0.3)
-        axc.set_ylim(0, 100)
-
-    K.cover(OUT / "dataset-cover-image.png", ("Synthetic Clinical", "RAG Evaluation Set"), "retrieval and grounding tests", "7 PROTOCOLS  |  QUESTIONS  |  LABELLED CLAIMS", draw)
+    make_cover("rag")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def description(user, docs, sections, questions, claims, lessons):

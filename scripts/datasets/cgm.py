@@ -20,6 +20,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
 SLUG = "synthetic-cgm-glucose-traces"
@@ -201,15 +202,8 @@ def charts(people, readings, mets):
     fig.savefig(ASSETS / "overview.png")
     plt.close(fig)
 
-    one = readings[readings.person_id == pid].glucose_mg_dl.iloc[: STEP].interpolate().values
 
-    def draw(axc):
-        axc.axhspan(70, 180, color=K.BLUE_LIGHT, alpha=0.35, lw=0)
-        axc.plot(np.arange(len(one)), one, color=K.BLUE, lw=1.6)
-        axc.set_xlim(0, len(one))
-        axc.set_ylim(40, max(260, one.max() + 10))
-
-    K.cover(OUT / "dataset-cover-image.png", ("Synthetic CGM", "Glucose Traces"), "100 people, 14 days, every 5 minutes", "CONTINUOUS GLUCOSE MONITORING  |  FORECASTING", draw)
+    make_cover("cgm")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def description(user, people, readings, mets, lesson_url):

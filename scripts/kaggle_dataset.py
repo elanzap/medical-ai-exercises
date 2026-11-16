@@ -25,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from generate_synthetic_cohort import ADMISSION_MODEL, generate  # noqa: E402
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 
 OUT = ROOT / "kaggle-build" / "dataset"
 STARTER = ROOT / "kaggle-build" / "starter"
@@ -309,15 +310,8 @@ def make_charts(cohort: pd.DataFrame):
     fig.savefig(ASSETS / "cohort-overview.png")
     plt.close(fig)
 
-    vals = cohort.hba1c_percent.dropna()
-    counts, _ = np.histogram(vals, bins=np.arange(4.99, 12.5, 0.2))
 
-    def draw(axc):
-        axc.bar(range(len(counts)), counts, width=0.8, color=K.BLUE_LIGHT)
-        axc.set_xlim(-1, len(counts))
-        axc.set_ylim(0, counts.max() * 1.05)
-
-    K.cover(OUT / "dataset-cover-image.png", ("Synthetic Diabetes", "Clinic Data"), "for Medical AI", "5,000 SYNTHETIC PATIENTS  |  NOTES  |  LLM PAIRS", draw)
+    make_cover("clinic")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def write_assumptions():

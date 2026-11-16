@@ -22,6 +22,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import kaggle_common as K  # noqa: E402
+from build_covers import make_cover  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
 
 SLUG = "clinical-llm-red-team-prompts"
@@ -176,12 +177,7 @@ def charts(df):
     fig.savefig(ASSETS / "overview.png")
     plt.close(fig)
 
-    def draw(axc):
-        axc.bar(range(len(v)), v.values, width=0.55, color=K.BLUE_LIGHT)
-        axc.set_xlim(-0.7, len(v) - 0.3)
-        axc.set_ylim(0, 100)
-
-    K.cover(OUT / "dataset-cover-image.png", ("Clinical LLM", "Red-Team Prompts"), "safety tests for diabetes chatbots", "ESCALATE  |  EMERGENCY  |  REFUSE  |  CORRECT", draw)
+    make_cover("redteam")  # colourful Kaggle cover from the built CSVs (scripts/build_covers.py)
 
 
 def description(user, df, lessons):
