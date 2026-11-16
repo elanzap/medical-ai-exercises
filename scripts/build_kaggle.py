@@ -279,13 +279,10 @@ def publish(user: str, built: list[dict], only: str | None):
             continue
         if not only and done.get(item["slug"], {}).get("result") == "pushed":
             continue
-        for attempt in range(60):  # Kaggle's push limit can last hours; keep retrying for up to a day
-            code, out = run([kaggle, "kernels", "push", "-p", str(BUILD / "kernels" / item["slug"])])
-            if "rate limit" not in out.lower():
-                break
-            wait = min(300 * (attempt + 1), 1800)  # 5, 10, 15 ... then every 30 min
-            print(f"rate limited on {item['slug']}; waiting {wait // 60} min", flush=True)
-            time.sleep(wait)
+        code, out = run([kaggle, "kernels", "push", "-p", str(BUILD / "kernels" / item["slug"])])
+        if "rate limit" in out.lower():
+            print(f"rate limited on {item['slug']}; stopping (resume later; already-published notebooks are skipped)", flush=True)
+            break
         ok = code == 0 and "error" not in out.lower() and "rate limit" not in out.lower()
         done[item["slug"]] = {**item, "url": f"https://www.kaggle.com/code/{user}/{item['slug']}", "result": "pushed" if ok else "failed", "message": out.splitlines()[-1] if out else ""}
         print(("OK  " if ok else "FAIL"), item["slug"], "-", done[item["slug"]]["message"])
@@ -293,7 +290,7 @@ def publish(user: str, built: list[dict], only: str | None):
             w = csv.DictWriter(f, fieldnames=["slug", "title", "kind", "lesson", "url", "result", "message"])
             w.writeheader()
             w.writerows(done.values())
-        time.sleep(45)  # Kaggle rate-limits rapid pushes
+        time.sleep(180)  # publish slowly: Kaggle rate-limits making notebooks public
 
 
 if __name__ == "__main__":
