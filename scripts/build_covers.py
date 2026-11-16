@@ -1,4 +1,4 @@
-"""Colourful Kaggle cover images (1120 x 560) for the six course datasets, drawn from each dataset's built CSVs.
+"""Colourful Kaggle cover images (laid out on a 1120 x 560 grid, saved at exactly 560 x 280: Kaggle crops thumbnails assuming that size) for the six course datasets, drawn from each dataset's built CSVs.
 
 Usage: python scripts/build_covers.py [key ...]     (keys: clinic cgm fhir rag redteam fda; default all)
 
@@ -240,7 +240,7 @@ def make_cover(key: str) -> Path:
     n = CHARTS[key](ax, d)
     text(fig, c, c["tagline"].format(n=f"{n:,}" if n else ""))
     out = d / "dataset-cover-image.png"
-    fig.savefig(out, dpi=100)
+    fig.savefig(out, dpi=50)  # Kaggle crops covers at fixed positions that assume exactly 560 x 280 px
     plt.close(fig)
     upd = update_folder(c)
     if upd.exists():
