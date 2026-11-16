@@ -31,10 +31,12 @@ print(f"Model trained without markers:       {accuracy(cnn, X_new, y_new):.3f}")
 # (text labels, positioning, image processing), which is why external testing matters more than any single fix.
 
 # %% Step 3
+import os
 from medmnist import PneumoniaMNIST
 from sklearn.metrics import confusion_matrix, roc_auc_score
 
 def load_medmnist(cls, split):
+    os.makedirs("data", exist_ok=True)   # medmnist needs the folder to exist
     d = cls(split=split, download=True, root="data", size=28)
     X = torch.tensor(d.imgs, dtype=torch.float32).unsqueeze(1) / 255.0
     X = (X - 0.5) / 0.25                                   # roughly standardise intensities

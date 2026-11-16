@@ -87,9 +87,11 @@ print(report.round(3).to_string())
 # model (grade 2 or more = referable), and its score distributions by grade.
 import torch
 from torch import nn
+import os
 from medmnist import RetinaMNIST
 
 def load(split):
+    os.makedirs("data", exist_ok=True)   # medmnist needs the folder to exist
     d = RetinaMNIST(split=split, download=True, root="data", size=28)
     X = torch.tensor(d.imgs, dtype=torch.float32).permute(0, 3, 1, 2) / 255.0
     return (X - 0.5) / 0.25, d.labels.ravel()

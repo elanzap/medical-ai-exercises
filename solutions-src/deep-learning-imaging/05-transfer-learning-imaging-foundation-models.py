@@ -58,10 +58,12 @@ print(f"Pretrained on standardised site A, standardised site B: "
 # %% Step 3
 # Optional: an ImageNet-pretrained ResNet-18 (torchvision) on RetinaMNIST, compared with the same network from scratch.
 # Downloads about 45 MB of weights and 3 MB of images; a few minutes on a CPU.
+import os
 from medmnist import RetinaMNIST
 from torchvision.models import ResNet18_Weights, resnet18
 
 def load_retina(split):
+    os.makedirs("data", exist_ok=True)   # medmnist needs the folder to exist
     d = RetinaMNIST(split=split, download=True, root="data", size=28)
     X = torch.tensor(d.imgs, dtype=torch.float32).permute(0, 3, 1, 2) / 255.0
     X = nn.functional.interpolate(X, size=64, mode="bilinear", align_corners=False)   # small images, upsampled
